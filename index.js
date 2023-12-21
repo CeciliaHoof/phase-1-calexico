@@ -16,11 +16,11 @@
 */
 // Write your code here...
 
-//Global
+//Global variables
 const baseURL = 'http://localhost:3000/menu'
 let selectedItem; 
 
-//selections
+//DOM selectors
 const menuItems = document.querySelector('#menu-items');
 const dishImg = document.querySelector('#dish-image');
 const dishName = document.querySelector('#dish-name');
@@ -38,24 +38,24 @@ price.textContent = 0;
 priceDisplay.appendChild(price);
 
 
-//Fetch
+//Fetch Functions
 function getMenu(url){
     fetch(url)
     .then(resp => resp.json())
-    .then(data => {
-        renderMenu(data);
-        renderDetails(data[0])
+    .then(dishArr => {
+        dishArr.forEach(dishObj => renderMenu(dishObj));
+        renderDetails(dishArr[0])
     })
 }
 
-//functions
-function renderMenu(menuArr){
-    menuArr.forEach(item => {
+//Render Functions
+function renderMenu(item){
+    // menuArr.forEach(item => {
         const itemSpan = document.createElement('span');
         itemSpan.textContent = item.name;
         menuItems.appendChild(itemSpan)
         itemSpan.addEventListener('click',() => renderDetails(item))
-    })
+    // })
 }
 
 function renderDetails(menuItem){
@@ -63,17 +63,18 @@ function renderDetails(menuItem){
     dishImg.src = menuItem.image;
     dishName.textContent = menuItem.name;
     dishDes.textContent = menuItem.description;
-    dishPrice.textContent = menuItem.price;
+    dishPrice.textContent = `$${menuItem.price}`;
+    numInCart.textContent = menuItem.number_in_bag;
     //numInCart.textContent = parseInt(numInCart.textContent) + parseInt(menuItem["number-bag"])
     //price.textContent = parseFloat(menuItem["ordered-price"])
 }
 
-//event handlers
+//Even Listeners & Handlers
 cartForm.addEventListener('submit', (e) => cartSubmit(e))
 
 function cartSubmit(e){
     e.preventDefault();
-    const numToAdd = parseInt(e.target['cart-amount'].value);
+    let numToAdd = Number(e.target['cart-amount'].value);
     const currentNum = parseInt(numInCart.textContent)
     const newNum = currentNum + numToAdd;
     numInCart.textContent = newNum;
@@ -84,13 +85,11 @@ function cartSubmit(e){
     const priceInCart = priceForItems + currentPrice;
     price.textContent = priceInCart;
 
-    const itemsDisplay = document.createElement('h5');
-    itemsDisplay.textContent = `${selectedItem.name}, ${numToAdd}: $${priceForItems}`
-    cartDisplay.appendChild(itemsDisplay)
     
-    selectedItem["number_in_bag"] = numToAdd;
+    
+    selectedItem["number_in_bag"] += numToAdd;
     selectedItem["ordered_price"] = priceForItems;
-    console.log(selectedItem);
+    //console.log(selectedItem);
 
     
     // fetch(`${baseURL}/${selectedItem.id}`, {
